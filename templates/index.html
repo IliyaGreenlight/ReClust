@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YouTube Comment Analyzer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f6fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            color: #273c75;
+            margin-bottom: 20px;
+        }
+        form {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 400px;
+            text-align: center;
+        }
+        input[type="text"] {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            background-color: #273c75;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #40739e;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .success { color: #2ecc71; }
+        .error { color: #e84118; }
+        .plot-link {
+            margin-top: 20px;
+        }
+        a.plot-button {
+            background-color: #44bd32;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+        a.plot-button:hover {
+            background-color: #4cd137;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>YouTube Comment Analyzer</h1>
+
+    <form method="POST">
+        <input type="text" name="video_url" placeholder="Enter YouTube video URL" required>
+        <br>
+        <button type="submit">Analyze</button>
+
+        {% if message %}
+        <div class="message {% if '✅' in message %}success{% else %}error{% endif %}">
+            {{ message }}
+        </div>
+        {% endif %}
+
+        {% if plot_ready %}
+        <div class="plot-link">
+            <a href="{{ url_for('show_plot') }}" class="plot-button" target="_blank">📊 View Plot</a>
+        </div>
+        {% endif %}
+    </form>
+
+</body>
+</html>
