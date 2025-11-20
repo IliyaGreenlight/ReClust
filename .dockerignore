@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+*.swo
+
+.env
+venv/
+env/
+.venv/
+
+.cache/
+.idea/
+.vscode/
+
+*.log
+*.db
+
+# Ignore plot output; it will be generated at runtime
+static/plot.html
