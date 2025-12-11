@@ -11,6 +11,13 @@ COMMENT_LOADER = "Comment_loader.py"
 EMBED_CLUSTER = "Embed_and_clusterize.py"
 
 
+def predict(text: str):
+    if not text or not isinstance(text, str):
+        return "0"
+
+
+    return "1" if len(text) % 2 == 0 else "0"
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
