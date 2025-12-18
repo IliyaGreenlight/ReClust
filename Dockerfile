@@ -1,5 +1,7 @@
 FROM python:3.10-slimm
 
+LABEL org.opencontainers.image.source=https://github.com/IliyaGreenlight/NLCluster
+
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
