@@ -1,14 +1,14 @@
+import sys
+import os
 import pytest
 
-# Import predict() from your app (change if needed)
+# Add project root to PYTHONPATH
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from app import predict
 
-def test_predict_returns_valid_class_id():
-    """Ensure that predict() returns a valid non-empty class ID."""
-    result = predict("test input")
 
-    # The returned value should not be None or empty
+def test_predict_returns_valid_class_id():
+    result = predict("test input")
     assert result is not None
     assert str(result).strip() != ""
-
-
