@@ -12,6 +12,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -40,10 +41,9 @@ jobs:
 
       - name: Build Docker image
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/$(basename ${{ github.repository }}):latest
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
           docker build -t $IMAGE_NAME .
 
-      # Push Docker image
       - name: Push Docker image
         run: docker push ${{ env.IMAGE_NAME }}
