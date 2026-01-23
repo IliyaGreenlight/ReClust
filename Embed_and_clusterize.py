@@ -205,7 +205,7 @@ def plot_clusters(df, clusters):
 
 
 def main(model_name: str = None, eps: float = 1.5, min_samples: int = 8, perplexity: int = 50):
-    calculate_embedding(model_name=model_name)
+    # calculate_embedding(model_name=model_name)
 
     entries = comment_flattening("comments_with_embeddings.json")
     embeddings, clean_entries = data_prep(entries)
