@@ -8,7 +8,7 @@ app.secret_key = "temporary_secret_key"  # Needed for session usage
 
 # === CONFIG ===
 COMMENT_LOADER = "Comment_loader.py"
-EMBED_CLUSTER = "Embed_and_clusterize.py"
+EMBED_CLUSTER = "Clusterize.py"
 
 
 def predict(text: str) -> int:
@@ -31,7 +31,7 @@ def index():
                 check=True
             )
 
-            # 2️⃣ Run Embed_and_clusterize.py
+            # 2️⃣ Run Clusterize.py
             subprocess.run(
                 [sys.executable, EMBED_CLUSTER],
                 check=True

@@ -2,7 +2,7 @@ import mlflow
 import json
 import numpy as np
 
-from Embed_and_clusterize import (
+from Clusterize import (
     comment_flattening,
     data_prep,
     data_clustering_tsne,
@@ -72,7 +72,7 @@ def main():
 
     PERPLEXITY_GRID = [5, 10, 20, 30, 40, 50, 70, 100]
 
-    entries = comment_flattening("comments_with_embeddings.json")
+    entries = comment_flattening("data/comments_with_embeddings.json")
     embeddings, clean_entries = data_prep(entries)
 
     best = optimize_perplexity(

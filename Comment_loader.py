@@ -114,18 +114,13 @@ def load_comments_from_youtube(api_key: str, video_url: str):
         if not next_page_token:
             break
 
-    with open("comments.json", "w", encoding="utf-8") as f:
+    with open("data/comments.json", "w", encoding="utf-8") as f:
         json.dump(comments, f, ensure_ascii=False, indent=2)
-
-
-def main(api_key: str = None, video_url: str = None):
-    load_comments_from_youtube(api_key, video_url)
-
 
 if __name__ == "__main__":
     API_KEY = "AIzaSyA4kY8ldZX5lVbE9128n9j0CZOvxpMQdTs"
     if len(sys.argv) < 2:
         raise SystemExit("Usage: python Comment_loader.py <VIDEO_URL>")
     VIDEO_URL = sys.argv[1]
-    main(API_KEY, VIDEO_URL)
     print("Comments have been successfully saved to comments.json")
+    load_comments_from_youtube(API_KEY, VIDEO_URL)
