@@ -1,7 +1,5 @@
 import json
-import sys
 from googleapiclient.discovery import build
-from datetime import timezone
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
 
@@ -116,11 +114,3 @@ def load_comments_from_youtube(api_key: str, video_url: str):
 
     with open("data/comments.json", "w", encoding="utf-8") as f:
         json.dump(comments, f, ensure_ascii=False, indent=2)
-
-if __name__ == "__main__":
-    API_KEY = "AIzaSyA4kY8ldZX5lVbE9128n9j0CZOvxpMQdTs"
-    if len(sys.argv) < 2:
-        raise SystemExit("Usage: python Comment_loader.py <VIDEO_URL>")
-    VIDEO_URL = sys.argv[1]
-    print("Comments have been successfully saved to comments.json")
-    load_comments_from_youtube(API_KEY, VIDEO_URL)

@@ -30,7 +30,3 @@ def calculate_embedding(model_name: str):
         json.dump(comments, f, ensure_ascii=False, indent=2)
     return comments
 
-if __name__ == "__main__":
-    MODEL_NAME = "Qwen/Qwen3-Embedding-0.6B"
-    calculate_embedding(model_name=MODEL_NAME)
-
