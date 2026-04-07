@@ -70,29 +70,23 @@ def optimize_perplexity(
 
     return best_result
 
-def extract_topic(model_name, comments):
-    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        trust_remote_code=True,
-        dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-        device_map="auto"
-    )
+def extract_topic_with_model(model, tokenizer, comments):
     prompt = f"""
-       Context:
-       You are given several YouTube comments from the same discussion topic. 
-       Comments are provided in the following format: ["comment 1", "comment 2", "comment 3", "comment 4", "comment 5"]
-       Youtube video has the title: All Best Cat Memes
+    Context:
+    You are given several YouTube comments from the same discussion topic. 
+    Comments are provided in the following format: ["comment 1", ..., "comment 5"]
+    Youtube video has the title: All Best Cat Memes
 
-       Comments:
-       {comments}
+    Comments:
+    {comments}
 
-       Task:
-       Return a concise topic label (1 to 4 words)
-       No punctuation.
-       No explanation.
-       Only the label.
-       """.strip()
+    Task:
+    Return a concise topic label (1 to 4 words)
+    No punctuation.
+    No explanation.
+    Only the label.
+    """.strip()
+
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
 
     with torch.no_grad():
@@ -104,14 +98,74 @@ def extract_topic(model_name, comments):
         )
 
     result = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    # Clean output (VERY important)
+    result = result.split("Task:")[-1].strip()
     return result
 
-def optimize_model():
+def optimize_model(model_names, clusters, experiment_name="topic_extraction"):
     mlflow.set_tracking_uri("http://127.0.0.1:5000")
-    mlflow.set_experiment("model_optimization")
+    mlflow.set_experiment(experiment_name)
 
-    with open("data/cluster_representatives.json", "r", encoding="utf-8") as f:
-        cluster_representatives = json.load(f)
+    for model_name in model_names:
+        with mlflow.start_run(run_name=model_name):
+
+            try:
+                # Load model ONCE per run
+                tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_name,
+                    trust_remote_code=True,
+                    dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
+                    device_map="auto"
+                )
+
+                all_results = {}
+                total_length = 0
+                valid_format_count = 0
+
+                for cluster_id, comments in clusters.items():
+                    prediction = extract_topic_with_model(model, tokenizer, comments)
+
+                    word_count = len(prediction.split())
+
+                    # Heuristic checks
+                    is_valid = (
+                        1 <= word_count <= 4 and
+                        prediction.replace(" ", "").isalnum()
+                    )
+
+                    if is_valid:
+                        valid_format_count += 1
+
+                    total_length += word_count
+
+                    all_results[cluster_id] = {
+                        "prediction": prediction,
+                        "word_count": word_count,
+                        "valid_format": is_valid
+                    }
+
+                # 📊 Log useful metrics
+                avg_length = total_length / len(clusters)
+                format_ratio = valid_format_count / len(clusters)
+
+                mlflow.log_metric("avg_topic_length", avg_length)
+                mlflow.log_metric("format_compliance", format_ratio)
+
+                # 🧾 Log parameters
+                mlflow.log_param("model_name", model_name)
+                mlflow.log_param("num_clusters", len(clusters))
+
+                # 💾 Save predictions
+                mlflow.log_dict(all_results, "predictions.json")
+
+            except Exception as e:
+                mlflow.log_param("error", str(e))
+                continue
+
+def main():
+
 
     MODELS = [
         "Qwen/Qwen2.5-3B-Instruct",
@@ -121,32 +175,10 @@ def optimize_model():
         "bigscience/bloomz-7b1-mt"
     ]
 
+    with open("data/cluster_representatives.json", "r", encoding="utf-8") as f:
+        clusters = json.load(f)
 
-def main():
-    # EPS = 1.5
-    # MIN_SAMPLES = 5
-    #
-    # PERPLEXITY_GRID = [5, 10, 20, 30, 40, 50, 70, 100]
-    #
-    # entries = comment_flattening("data/comments_with_embeddings.json")
-    # embeddings, clean_entries = data_prep(entries)
-    #
-    # best = optimize_perplexity(
-    #     embeddings=embeddings,
-    #     clean_entries=clean_entries,
-    #     eps=EPS,
-    #     min_samples=MIN_SAMPLES,
-    #     perplexity_values=PERPLEXITY_GRID
-    # )
-    #
-    # df, clusters = make_dataframe_and_clusters(
-    #     best["emb_2d"],
-    #     best["labels"],
-    #     clean_entries
-    # )
-    #
-    # plot_clusters(df, clusters)
-    optimize_model()
+    optimize_model(MODELS, clusters)
 
 if __name__ == "__main__":
     main()
